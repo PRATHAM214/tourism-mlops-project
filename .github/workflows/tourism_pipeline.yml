@@ -1,0 +1,37 @@
+name: Tourism Project Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Check Python files
+        run: |
+          python -m py_compile app.py
+
+      - name: Verify model files
+        run: |
+          test -f model_building/preprocessor.pkl
+          test -f model_building/random_forest_model.pkl
+          echo "Model files verified successfully!"
+
+      - name: Build Docker image
+        run: |
+          docker build -t tourism-mlops-project .
